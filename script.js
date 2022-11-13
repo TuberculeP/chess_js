@@ -127,7 +127,10 @@ divs.forEach(div => {
                 plateau[coord[0]][coord[1]] = last_piece[0];
                 plateau[last_piece[1][0]][last_piece[1][1]] = null;
                 document.querySelectorAll('.possible-move')
-                    .forEach(div =>{div.classList.remove('possible-move')})
+                    .forEach(div =>{
+                        div.classList.remove('possible-move');
+                        div.classList.remove('EAT')
+                    })
                 update();
             }
 
@@ -141,6 +144,9 @@ divs.forEach(div => {
                 for(let i=0; i<pm.length; i++){
                     let id = Piece.toString(pm[i]);
                     document.querySelector('div.'+id).classList.add('possible-move');
+                    if(plateau[pm[i][0]][pm[i][1]] instanceof Piece){
+                        document.querySelector('div.'+id).classList.add('EAT');
+                    }
                 }
                 last_piece = [piece, coord];
             }
@@ -153,7 +159,10 @@ divs.forEach(div => {
                 plateau[coord[0]][coord[1]] = last_piece[0];
                 plateau[last_piece[1][0]][last_piece[1][1]] = null;
                 document.querySelectorAll('.possible-move')
-                    .forEach(div =>{div.classList.remove('possible-move')})
+                    .forEach(div =>{
+                        div.classList.remove('possible-move');
+                        div.classList.remove('EAT')
+                    })
                 update();
             }
         }
