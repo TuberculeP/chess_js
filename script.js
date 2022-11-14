@@ -66,12 +66,24 @@ for(let i = 0; i < 8; i++){
 }
 
 //fonction pour actualiser l’affichage du tableau-----------------------------------------------------------------------
+
+const icon = {
+    'tower': '♜',
+    'pawn': '♟',
+    'knight': '♞',
+    'bishop': '♝',
+    'queen': '♛',
+    'king': '♚',
+}
+
+
 function update(){
     document.querySelectorAll('main>div').forEach((row, i) => {
         row.querySelectorAll('div').forEach((cell, j) => {
             cell.classList.remove('white');
             if(plateau[i][j] instanceof Piece){
-                cell.innerHTML = plateau[i][j].type;
+                //ajouter l'émoji
+                cell.innerHTML = icon[plateau[i][j].type];
                 if(plateau[i][j].color === 'white'){
                     cell.classList.add('white');
                 }
@@ -95,10 +107,33 @@ function getCoordinates(div) {
     return [coordinates[0],coordinates[1]];
 }
 
+//tours de jeu
+
+let currentPlayer = 'white';
+const H3Playing = document.querySelector('h3 span');
+
 //variables utiles hors boucle pour sauvegarder des trucs
 let current_active;
 let pm = [];
 let last_piece = [];
+
+function move(coord){
+    plateau[coord[0]][coord[1]] = last_piece[0];
+    plateau[last_piece[1][0]][last_piece[1][1]] = null;
+    document.querySelectorAll('.possible-move')
+        .forEach(div =>{
+            div.classList.remove('possible-move');
+            div.classList.remove('EAT')
+        })
+    if(currentPlayer === 'white'){
+        currentPlayer = 'black';
+        H3Playing.innerHTML = 'noirs';
+    }else{
+        currentPlayer = 'white';
+        H3Playing.innerHTML = 'blancs';
+    }
+    update();
+}
 
 //à chaque cellule du plateau
 divs.forEach(div => {
@@ -124,31 +159,27 @@ divs.forEach(div => {
 
             // si on clique pour manger cette pièce
             if(div.classList.contains('possible-move')){
-                plateau[coord[0]][coord[1]] = last_piece[0];
-                plateau[last_piece[1][0]][last_piece[1][1]] = null;
-                document.querySelectorAll('.possible-move')
-                    .forEach(div =>{
-                        div.classList.remove('possible-move');
-                        div.classList.remove('EAT')
-                    })
-                update();
+                move(coord);
             }
 
             //sinon cela signifie que nous souhaitons la déplacer
             else{
-                current_active = div;
-                current_active.classList.add('active');
+                //si ce sont nos pions
+                if(currentPlayer === piece.color){
+                    current_active = div;
+                    current_active.classList.add('active');
 
-                //affichons toutes les cases possibles pour se déplacer
-                pm = piece.possibleMove(coord, plateau);
-                for(let i=0; i<pm.length; i++){
-                    let id = Piece.toString(pm[i]);
-                    document.querySelector('div.'+id).classList.add('possible-move');
-                    if(plateau[pm[i][0]][pm[i][1]] instanceof Piece){
-                        document.querySelector('div.'+id).classList.add('EAT');
+                    //affichons toutes les cases possibles pour se déplacer
+                    pm = piece.possibleMove(coord, plateau);
+                    for(let i=0; i<pm.length; i++){
+                        let id = Piece.toString(pm[i]);
+                        document.querySelector('div.'+id).classList.add('possible-move');
+                        if(plateau[pm[i][0]][pm[i][1]] instanceof Piece){
+                            document.querySelector('div.'+id).classList.add('EAT');
+                        }
                     }
+                    last_piece = [piece, coord];
                 }
-                last_piece = [piece, coord];
             }
         }
         //au clic sur une case vide
@@ -156,14 +187,7 @@ divs.forEach(div => {
 
             //si cette case est correcte au déplacement, on déplace
             if(div.classList.contains('possible-move')){
-                plateau[coord[0]][coord[1]] = last_piece[0];
-                plateau[last_piece[1][0]][last_piece[1][1]] = null;
-                document.querySelectorAll('.possible-move')
-                    .forEach(div =>{
-                        div.classList.remove('possible-move');
-                        div.classList.remove('EAT')
-                    })
-                update();
+                move(coord);
             }
         }
 
@@ -202,3 +226,4 @@ divs.forEach(div => {
         })
     })
 })
+

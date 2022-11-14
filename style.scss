@@ -21,8 +21,8 @@ div.modal_container{
 }
 
 main{
-  width: 600px;
-  height: 600px;
+  width: 500px;
+  height: 500px;
   border: 2px solid black;
   margin: 40px auto;
   display: grid;
@@ -36,6 +36,7 @@ main{
     background-color: #9a9a9a;
     user-select: none;
     font-family: sans-serif;
+    font-size: 40px;
     &.white{
       color: white;
     }
@@ -61,4 +62,10 @@ main{
       }
     }
   }
+}
+
+footer{
+  text-align: center;
+  font-size: large;
+  font-family: sans-serif;
 }
