@@ -137,7 +137,10 @@ export class Piece
                 }
             }
         })
-        if(aPawnChecks) return true;
+        if(aPawnChecks){
+            //console.log('pawn');
+            return true;
+        }
 
         //par rapport à une tour (ou reine)
 
@@ -145,7 +148,7 @@ export class Piece
         let tab = [[1,0], [-1,0], [0,1], [0,-1]];
         tab.forEach(dir => {
             for(let i=1; i < 7; i++){
-                if(x + i*dir[0] < 7 && x + i*dir[0] >= 0 && y + i*dir[1] < 7 && y + i*dir[1] >= 0){
+                if(x + i*dir[0] < 8 && x + i*dir[0] >= 0 && y + i*dir[1] < 8 && y + i*dir[1] >= 0){
                     let cell = plateau[x+ i*dir[0]][y + i*dir[1]];
                     if(cell instanceof Piece){
                         //si on rencontre une pièce amie on break
@@ -162,7 +165,10 @@ export class Piece
             }
         });
 
-        if(lineChecks) return true;
+        if(lineChecks){
+            //console.log('line')
+            return true;
+        }
 
         //par rapport à un fou (ou reine)
 
@@ -170,7 +176,7 @@ export class Piece
         tab = [[1,1], [1,-1], [-1,1], [-1,-1]];
         tab.forEach(dir => {
             for(let i=1; i < 7; i++){
-                if(x + i*dir[0] < 7 && x + i*dir[0] >= 0 && y + i*dir[1] < 7 && y + i*dir[1] >= 0){
+                if(x + i*dir[0] < 8 && x + i*dir[0] >= 0 && y + i*dir[1] < 8 && y + i*dir[1] >= 0){
                     let cell = plateau[x+ i*dir[0]][y + i*dir[1]];
                     if(cell instanceof Piece){
                         //si on rencontre une pièce amie on break
@@ -187,7 +193,10 @@ export class Piece
             }
         });
 
-        if(diagCheck) return true;
+        if(diagCheck){
+            //console.log('diag')
+            return true;
+        }
 
 
         //finalement pour un cavalier
@@ -199,7 +208,7 @@ export class Piece
         tab.forEach(dir => {
             let i = x + dir[0];
             let j = y + dir[1];
-            if( i < 7 && i >= 0 && j < 7 && j >= 0){
+            if( i < 8 && i >= 0 && j < 8 && j >= 0){
                 let cell = plateau[i][j];
                 if(cell instanceof Piece){
                     if(cell.type === 'knight' && cell.color !== this.color){
@@ -209,7 +218,10 @@ export class Piece
             }
         });
 
-        if(aKnightCheck) return true;
+        if(aKnightCheck){
+            //console.log('knight')
+            return true;
+        }
 
 
         return false;

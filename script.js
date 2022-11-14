@@ -44,6 +44,8 @@ let plateau = [
         new Piece('tower','black')
     ],
 ]
+let finished = false;
+const H3Playing = document.querySelector('h3 span#player');
 
 //ajoutons la version "Front" du tableau
 const main = document.querySelector('main');
@@ -125,11 +127,23 @@ function update(){
                 check_text.innerHTML += '[Roi Noir en échec] ';
             }
         }
+
+        //vérifions l'échec et mat
+        let pm = king.possibleMove(coord, plateau);
+        let checkAmount = 0;
+        pm.forEach(pos => {
+            if(king.isCheck(pos, plateau)){
+                checkAmount++;
+            }
+        })
+        if(checkAmount === pm.length && checkAmount !== 0 && king.isCheck(coord, plateau)){
+            defeat(king.color);
+        }
     })
 }
 update();
 
-//implémentons un système de case active/pas active---------------------------------------------------------------------
+//implémentons un système de clique de case ----------------------------------------------------------------------------
 
 //toutes les cellules du plateau
 const divs = document.querySelectorAll('main>div div');
@@ -144,7 +158,6 @@ function getCoordinates(div) {
 //tours de jeu
 
 let currentPlayer = 'white';
-const H3Playing = document.querySelector('h3 span#player');
 
 //variables utiles hors boucle pour sauvegarder des trucs
 let current_active;
@@ -168,7 +181,6 @@ function move(coord){
         H3Playing.innerHTML = 'blancs';
     }
     update();
-
 }
 
 //à chaque cellule du plateau
@@ -176,108 +188,120 @@ divs.forEach(div => {
 
     //au clic sur le plateau
     div.addEventListener('click', ()=>{
-
-        //reset les highlight plateau quand nouveau click
-        if(current_active){
-            current_active.classList.remove('active');
-            if(!div.classList.contains('possible-move')){
-                document.querySelectorAll('.possible-move')
-                    .forEach(div =>{div.classList.remove('possible-move')})
-            }
-        }
-
-        //trouvons les coordonnées pour manipuler le plateau
-        let coord = getCoordinates(div);
-        let piece = plateau[coord[0]][coord[1]]
-
-        //au clic sur une pièce
-        if(piece instanceof Piece){
-
-            // si on clique pour manger cette pièce
-            if(div.classList.contains('possible-move')){
-                move(coord);
+        if(!finished){
+            //reset les highlight plateau quand nouveau click
+            if(current_active){
+                current_active.classList.remove('active');
+                if(!div.classList.contains('possible-move')){
+                    document.querySelectorAll('.possible-move')
+                        .forEach(div =>{div.classList.remove('possible-move')})
+                }
             }
 
-            //sinon cela signifie que nous souhaitons la déplacer
-            else{
-                //si ce sont nos pions
-                if(currentPlayer === piece.color){
-                    current_active = div;
-                    current_active.classList.add('active');
+            //trouvons les coordonnées pour manipuler le plateau
+            let coord = getCoordinates(div);
+            let piece = plateau[coord[0]][coord[1]]
 
-                    //nous devons d'abord tester si déplacer cette pièce met le roi en échec
+            //au clic sur une pièce
+            if(piece instanceof Piece){
 
-                    let conflict = false;
-                    let save_piece = piece;
-                    plateau[coord[0]][coord[1]] = null;
-                    findKings().forEach(king =>{
-                        if(king['cell'].isCheck(king['coord'], plateau)){
-                            conflict = true;
-                        }
-                    })
-                    plateau[coord[0]][coord[1]] = save_piece;
+                // si on clique pour manger cette pièce
+                if(div.classList.contains('possible-move')){
+                    move(coord);
+                }
 
-                    if(!conflict){
-                        //affichons toutes les cases possibles pour se déplacer
-                        pm = piece.possibleMove(coord, plateau);
-                        for(let i=0; i<pm.length; i++){
-                            let id = Piece.toString(pm[i]);
-                            document.querySelector('div.'+id).classList.add('possible-move');
-                            if(plateau[pm[i][0]][pm[i][1]] instanceof Piece){
-                                if(plateau[pm[i][0]][pm[i][1]].type !== 'king'){
-                                    document.querySelector('div.'+id).classList.add('EAT');
-                                }else{
-                                    document.querySelector('div.'+id).classList.remove('possible-move');
+                //sinon cela signifie que nous souhaitons la déplacer
+                else{
+                    //si ce sont nos pions
+                    if(currentPlayer === piece.color){
+                        current_active = div;
+                        current_active.classList.add('active');
+
+                        //nous devons d'abord tester si déplacer cette pièce met le roi en échec
+                        let conflict = false;
+                        let save_piece = piece;
+                        plateau[coord[0]][coord[1]] = null;
+                        findKings().forEach(king =>{
+                            if(king['cell'].isCheck(king['coord'], plateau)){
+                                conflict = true;
+                            }
+                        })
+                        plateau[coord[0]][coord[1]] = save_piece;
+
+                        //si bouger la pièce n'a pas d'incidence
+                        if(!conflict){
+                            //affichons toutes les cases possibles pour se déplacer
+                            pm = piece.possibleMove(coord, plateau);
+
+                            for(let i=0; i<pm.length; i++){
+                                //on vérifie que c'est un roi et que ses mouvements ne le mettent pas en échec
+                                if(piece.type !== 'king' || (!piece.isCheck(pm[i], plateau))){
+                                    let id = Piece.toString(pm[i]);
+                                    document.querySelector('div.'+id).classList.add('possible-move');
+                                    if(plateau[pm[i][0]][pm[i][1]] instanceof Piece){
+                                        if(plateau[pm[i][0]][pm[i][1]].type !== 'king'){
+                                            document.querySelector('div.'+id).classList.add('EAT');
+                                        }else{
+                                            document.querySelector('div.'+id).classList.remove('possible-move');
+                                        }
+                                    }
                                 }
                             }
                         }
+                        last_piece = [piece, coord];
                     }
-                    last_piece = [piece, coord];
                 }
             }
+            //au clic sur une case vide
+            else{
+
+                //si cette case est correcte au déplacement, on déplace
+                if(div.classList.contains('possible-move')){
+                    move(coord);
+                }
+            }
+
+            //dans les deux cas il nous faut vérifier si un pion s’est retrouvé sur la ligne opposée
+            //faisons boucler la ligne 0 et 7 pour vérifier ce cas de façon globale
+
+            //côté blanc
+            plateau[0].forEach((cell, index_cell) =>{
+                if(cell instanceof Piece && cell.type === 'pawn' && cell.color === 'black'){
+                    console.log('un pion noir sur la ligne : '+index_cell)
+                    document.querySelector('div.modal_container').style.display = 'flex';
+                    document.querySelector('form input[type=hidden]').value = Piece.toString([0, index_cell]);
+                }
+            })
+
+            //côté noir
+            plateau[7].forEach((cell, index_cell) =>{
+                if(cell instanceof Piece && cell.type === 'pawn' && cell.color === 'white'){
+                    console.log('un pion blanc sur la ligne : '+index_cell)
+                    document.querySelector('div.modal_container').style.display = 'flex';
+                    document.querySelector('form input[type=hidden]').value = Piece.toString([7, index_cell]);
+                }
+            })
+
+            //consequences du form
+            document.querySelector('form button').addEventListener('click', ()=>{
+                let coord = Piece.toTuple(document.querySelector('form input[type=hidden]').value);
+                let color;
+                let type = document.querySelector('form select').value;
+
+                if(coord[0] === 0) color = 'black';
+                else color = 'white';
+                plateau[coord[0]][coord[1]] = new Piece(type, color);
+                document.querySelector('div.modal_container').style.display = 'none';
+                update();
+            })
         }
-        //au clic sur une case vide
-        else{
-
-            //si cette case est correcte au déplacement, on déplace
-            if(div.classList.contains('possible-move')){
-                move(coord);
-            }
-        }
-
-        //dans les deux cas il nous faut vérifier si un pion s’est retrouvé sur la ligne opposée
-        //faisons boucler la ligne 0 et 7 pour vérifier ce cas de façon globale
-
-        //côté blanc
-        plateau[0].forEach((cell, index_cell) =>{
-            if(cell instanceof Piece && cell.type === 'pawn' && cell.color === 'black'){
-                console.log('un pion noir sur la ligne : '+index_cell)
-                document.querySelector('div.modal_container').style.display = 'flex';
-                document.querySelector('form input[type=hidden]').value = Piece.toString([0, index_cell]);
-            }
-        })
-
-        //côté noir
-        plateau[7].forEach((cell, index_cell) =>{
-            if(cell instanceof Piece && cell.type === 'pawn' && cell.color === 'white'){
-                console.log('un pion blanc sur la ligne : '+index_cell)
-                document.querySelector('div.modal_container').style.display = 'flex';
-                document.querySelector('form input[type=hidden]').value = Piece.toString([7, index_cell]);
-            }
-        })
-
-        //consequences du form
-        document.querySelector('form button').addEventListener('click', ()=>{
-            let coord = Piece.toTuple(document.querySelector('form input[type=hidden]').value);
-            let color;
-            let type = document.querySelector('form select').value;
-
-            if(coord[0] === 0) color = 'black';
-            else color = 'white';
-            plateau[coord[0]][coord[1]] = new Piece(type, color);
-            document.querySelector('div.modal_container').style.display = 'none';
-            update();
-        })
     })
 })
 
+// La petite fonction finale de victoire/défaite -----------------------------------------------------------------------
+
+function defeat(color) {
+    console.log('defeat of '+color)
+    document.querySelector('h3').innerHTML = 'Défaite des '+(color==='white'?'Blancs':'Noirs');
+    finished = true;
+}
