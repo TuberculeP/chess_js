@@ -72,4 +72,26 @@ header {
   padding: 20px;
 }
 
+main {
+  -webkit-transition: transform 0.5s;
+}
+main div div {
+  -webkit-transition: transform 0.5s;
+}
+
+main.reverse {
+  transform: rotateX(180deg);
+}
+main.reverse div div {
+  transform: rotateX(-180deg);
+}
+
+footer button {
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 10px;
+  cursor: pointer;
+}
+
 /*# sourceMappingURL=style.css.map */

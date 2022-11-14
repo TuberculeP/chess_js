@@ -75,3 +75,28 @@ header{
   font-family: sans-serif;
   padding: 20px;
 }
+//tour visuel
+main{
+  -webkit-transition: transform 0.5s;
+  div div{
+    -webkit-transition: transform 0.5s;
+  }
+}
+
+
+main.reverse{
+  transform: rotateX(180deg);
+  div div{
+    transform: rotateX(-180deg);
+  }
+}
+
+footer{
+  button{
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 10px;
+    cursor: pointer;
+  }
+}

@@ -45,6 +45,10 @@ let plateau = [
     ],
 ]
 let finished = false;
+
+//tours de jeu
+
+let currentPlayer = 'white';
 const H3Playing = document.querySelector('h3 span#player');
 
 //ajoutons la version "Front" du tableau
@@ -143,6 +147,10 @@ function update(){
 }
 update();
 
+document.querySelector('footer button').addEventListener('click', () =>{
+    main.classList.toggle('reverse');
+})
+
 //implémentons un système de clique de case ----------------------------------------------------------------------------
 
 //toutes les cellules du plateau
@@ -155,9 +163,7 @@ function getCoordinates(div) {
     return [coordinates[0],coordinates[1]];
 }
 
-//tours de jeu
 
-let currentPlayer = 'white';
 
 //variables utiles hors boucle pour sauvegarder des trucs
 let current_active;
