@@ -125,6 +125,10 @@ function move(coord){
             div.classList.remove('possible-move');
             div.classList.remove('EAT')
         })
+
+    //on va checker si le roi adverse est en échec suite au mouvement
+
+
     if(currentPlayer === 'white'){
         currentPlayer = 'black';
         H3Playing.innerHTML = 'noirs';
@@ -175,7 +179,11 @@ divs.forEach(div => {
                         let id = Piece.toString(pm[i]);
                         document.querySelector('div.'+id).classList.add('possible-move');
                         if(plateau[pm[i][0]][pm[i][1]] instanceof Piece){
-                            document.querySelector('div.'+id).classList.add('EAT');
+                            if(plateau[pm[i][0]][pm[i][1]].type !== 'king'){
+                                document.querySelector('div.'+id).classList.add('EAT');
+                            }else{
+                                document.querySelector('div.'+id).classList.remove('possible-move');
+                            }
                         }
                     }
                     last_piece = [piece, coord];
