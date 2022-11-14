@@ -50,7 +50,7 @@ export class Piece
             }
         }
 
-        //déplacements possibles tour fou ou reine (assez similaire)
+        //déplacements possibles pour une tour, un fou ou une reine (assez similaire)
         if(this.type === 'tower' || this.type === 'bishop' || this.type === 'queen'){
             let tab;
             if(this.type === 'tower') tab = [[1,0], [-1,0], [0,1], [0,-1]];
@@ -115,5 +115,103 @@ export class Piece
         }
 
         return list
+    }
+
+    isCheck(coord, plateau){
+        let x = coord[0];
+        let y = coord[1];
+
+        //par rapport à un pion
+        let speed;
+        let aPawnChecks = false;
+        if(this.color === 'white'){
+            speed = 1;
+        }else{
+            speed = -1;
+        }
+        [plateau[x+1*speed][y+1], plateau[x+1*speed][y-1]].forEach(cell =>{
+            if(cell instanceof Piece){
+                if((cell.type === 'pawn' && cell.color !== this.color)){
+                    console.log('pion met en échec')
+                    aPawnChecks = true;
+                }
+            }
+        })
+        if(aPawnChecks) return true;
+
+        //par rapport à une tour (ou reine)
+
+        let lineChecks = false;
+        let tab = [[1,0], [-1,0], [0,1], [0,-1]];
+        tab.forEach(dir => {
+            for(let i=1; i < 7; i++){
+                if(x + i*dir[0] < 7 && x + i*dir[0] >= 0 && y + i*dir[1] < 7 && y + i*dir[1] >= 0){
+                    let cell = plateau[x+ i*dir[0]][y + i*dir[1]];
+                    if(cell instanceof Piece){
+                        //si on rencontre une pièce amie on break
+                        if(cell.color === this.color){
+                            break;
+                        }else{
+                            if(cell.type === 'queen' || cell.type === 'tower'){
+                                lineChecks = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if(lineChecks) return true;
+
+        //par rapport à un fou (ou reine)
+
+        let diagCheck = false;
+        tab = [[1,1], [1,-1], [-1,1], [-1,-1]];
+        tab.forEach(dir => {
+            for(let i=1; i < 7; i++){
+                if(x + i*dir[0] < 7 && x + i*dir[0] >= 0 && y + i*dir[1] < 7 && y + i*dir[1] >= 0){
+                    let cell = plateau[x+ i*dir[0]][y + i*dir[1]];
+                    if(cell instanceof Piece){
+                        //si on rencontre une pièce amie on break
+                        if(cell.color === this.color){
+                            break;
+                        }else{
+                            if(cell.type === 'queen' || cell.type === 'bishop'){
+                                diagCheck = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if(diagCheck) return true;
+
+
+        //finalement pour un cavalier
+
+        let aKnightCheck = false;
+
+        tab = [[2,1], [2,-1], [-2,1], [-2,-1], [1,2], [1,-2], [-1,2], [-1,-2]];
+
+        tab.forEach(dir => {
+            let i = x + dir[0];
+            let j = y + dir[1];
+            if( i < 7 && i >= 0 && j < 7 && j >= 0){
+                let cell = plateau[i][j];
+                if(cell instanceof Piece){
+                    if(cell.type === 'knight' && cell.color !== this.color){
+                        aKnightCheck = true;
+                    }
+                }
+            }
+        });
+
+        if(aKnightCheck) return true;
+
+
+        return false;
     }
 }

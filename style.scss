@@ -55,6 +55,11 @@ main{
       text-decoration: underline;
     }
 
+    .check{
+      background-color: red;
+    }
+
+
     &.possible-move{
       box-shadow: inset 0 0 10px #40ff00;
       &.EAT{

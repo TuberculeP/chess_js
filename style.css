@@ -55,6 +55,9 @@ main div.active {
   font-weight: bolder;
   text-decoration: underline;
 }
+main div .check {
+  background-color: red;
+}
 main div.possible-move {
   box-shadow: inset 0 0 10px #40ff00;
 }

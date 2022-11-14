@@ -76,7 +76,7 @@ const icon = {
     'king': '♚',
 }
 
-
+let check_text  = document.querySelector('h3 span#check');
 function update(){
     document.querySelectorAll('main>div').forEach((row, i) => {
         row.querySelectorAll('div').forEach((cell, j) => {
@@ -92,6 +92,30 @@ function update(){
             }
         })
     })
+    check_text.innerHTML = '';
+    document.querySelectorAll('.check').forEach(cell => {
+        cell.classList.remove('check');
+    })
+
+    //Est-ce qu’un roi est en échec
+    //commençons par trouver tous les rois
+    for(let line = 0; line<plateau.length; line++){
+        for(let cell = 0; cell<plateau[line].length; cell++){
+            if(plateau[line][cell] instanceof Piece && plateau[line][cell].type === 'king'){
+                let king = plateau[line][cell];
+                if(king.isCheck([line, cell], plateau)) {
+                    let id = Piece.toString([line, cell]);
+                    document.querySelector('.'+id).classList.add('check');
+                    if(king.color === 'white'){
+                        check_text.innerHTML += '[Roi Blanc en échec] ';
+
+                    }else{
+                        check_text.innerHTML += '[Roi Noir en échec] ';
+                    }
+                }
+            }
+        }
+    }
 }
 update();
 
@@ -110,7 +134,7 @@ function getCoordinates(div) {
 //tours de jeu
 
 let currentPlayer = 'white';
-const H3Playing = document.querySelector('h3 span');
+const H3Playing = document.querySelector('h3 span#player');
 
 //variables utiles hors boucle pour sauvegarder des trucs
 let current_active;
@@ -126,9 +150,6 @@ function move(coord){
             div.classList.remove('EAT')
         })
 
-    //on va checker si le roi adverse est en échec suite au mouvement
-
-
     if(currentPlayer === 'white'){
         currentPlayer = 'black';
         H3Playing.innerHTML = 'noirs';
@@ -137,6 +158,7 @@ function move(coord){
         H3Playing.innerHTML = 'blancs';
     }
     update();
+
 }
 
 //à chaque cellule du plateau
