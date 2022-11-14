@@ -77,6 +77,19 @@ const icon = {
 }
 
 let check_text  = document.querySelector('h3 span#check');
+
+function findKings(){
+    let list = [];
+    for(let line = 0; line<plateau.length; line++) {
+        for (let cell = 0; cell < plateau[line].length; cell++) {
+            if (plateau[line][cell] instanceof Piece && plateau[line][cell].type === 'king') {
+                list.push({'cell': plateau[line][cell], 'coord': [line, cell]});
+            }
+        }
+    }
+    return list;
+}
+
 function update(){
     document.querySelectorAll('main>div').forEach((row, i) => {
         row.querySelectorAll('div').forEach((cell, j) => {
@@ -99,23 +112,20 @@ function update(){
 
     //Est-ce qu’un roi est en échec
     //commençons par trouver tous les rois
-    for(let line = 0; line<plateau.length; line++){
-        for(let cell = 0; cell<plateau[line].length; cell++){
-            if(plateau[line][cell] instanceof Piece && plateau[line][cell].type === 'king'){
-                let king = plateau[line][cell];
-                if(king.isCheck([line, cell], plateau)) {
-                    let id = Piece.toString([line, cell]);
-                    document.querySelector('.'+id).classList.add('check');
-                    if(king.color === 'white'){
-                        check_text.innerHTML += '[Roi Blanc en échec] ';
+    findKings().forEach(king_dict => {
+        let king = king_dict['cell'];
+        let coord = king_dict['coord'];
+        if(king.isCheck(coord, plateau)) {
+            let id = Piece.toString(coord);
+            document.querySelector('.'+id).classList.add('check');
+            if(king.color === 'white'){
+                check_text.innerHTML += '[Roi Blanc en échec] ';
 
-                    }else{
-                        check_text.innerHTML += '[Roi Noir en échec] ';
-                    }
-                }
+            }else{
+                check_text.innerHTML += '[Roi Noir en échec] ';
             }
         }
-    }
+    })
 }
 update();
 
@@ -195,16 +205,30 @@ divs.forEach(div => {
                     current_active = div;
                     current_active.classList.add('active');
 
-                    //affichons toutes les cases possibles pour se déplacer
-                    pm = piece.possibleMove(coord, plateau);
-                    for(let i=0; i<pm.length; i++){
-                        let id = Piece.toString(pm[i]);
-                        document.querySelector('div.'+id).classList.add('possible-move');
-                        if(plateau[pm[i][0]][pm[i][1]] instanceof Piece){
-                            if(plateau[pm[i][0]][pm[i][1]].type !== 'king'){
-                                document.querySelector('div.'+id).classList.add('EAT');
-                            }else{
-                                document.querySelector('div.'+id).classList.remove('possible-move');
+                    //nous devons d'abord tester si déplacer cette pièce met le roi en échec
+
+                    let conflict = false;
+                    let save_piece = piece;
+                    plateau[coord[0]][coord[1]] = null;
+                    findKings().forEach(king =>{
+                        if(king['cell'].isCheck(king['coord'], plateau)){
+                            conflict = true;
+                        }
+                    })
+                    plateau[coord[0]][coord[1]] = save_piece;
+
+                    if(!conflict){
+                        //affichons toutes les cases possibles pour se déplacer
+                        pm = piece.possibleMove(coord, plateau);
+                        for(let i=0; i<pm.length; i++){
+                            let id = Piece.toString(pm[i]);
+                            document.querySelector('div.'+id).classList.add('possible-move');
+                            if(plateau[pm[i][0]][pm[i][1]] instanceof Piece){
+                                if(plateau[pm[i][0]][pm[i][1]].type !== 'king'){
+                                    document.querySelector('div.'+id).classList.add('EAT');
+                                }else{
+                                    document.querySelector('div.'+id).classList.remove('possible-move');
+                                }
                             }
                         }
                     }
