@@ -21,10 +21,10 @@ div.modal_container{
 }
 
 main{
-  width: 500px;
-  height: 500px;
+  max-width: 500px;
+  aspect-ratio: 1/1;
   border: 2px solid black;
-  margin: 40px auto;
+  margin: 20px auto;
   display: grid;
   grid-template-rows: repeat(8, 1fr);
   div{
@@ -64,8 +64,9 @@ main{
   }
 }
 
-footer{
+header{
   text-align: center;
   font-size: large;
   font-family: sans-serif;
+  padding: 20px;
 }
