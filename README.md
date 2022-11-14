@@ -1,2 +1,2 @@
 # chess_js
-Pure HTML/JS local chess board
+Pure HTML/JS local chess game
