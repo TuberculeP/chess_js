@@ -5,6 +5,7 @@
 }
 
 div.modal_container{
+  z-index: 10;
   position: fixed;
   top: 0;
   width: 100%;
@@ -14,6 +15,7 @@ div.modal_container{
   align-items: center;
   justify-content: center;
   form{
+    z-index: 10;
     background-color: white;
     padding: 20px;
 
