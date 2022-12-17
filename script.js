@@ -37,8 +37,8 @@ let plateau = [
         new Piece('tower','black'),
         new Piece('knight','black'),
         new Piece('bishop','black'),
-        new Piece('queen','black'),
         new Piece('king','black'),
+        new Piece('queen','black'),
         new Piece('bishop','black'),
         new Piece('knight','black'),
         new Piece('tower','black')
